@@ -26,14 +26,14 @@ class DatabaseHelper {
       databaseFactory = databaseFactoryFfi;
     }
 
-
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -74,5 +74,29 @@ class DatabaseHelper {
           ON DELETE CASCADE
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE personal_expenses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        amount REAL NOT NULL,
+        source TEXT NOT NULL,
+        description TEXT,
+        created_at TEXT NOT NULL
+      )
+    ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS personal_expenses (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          amount REAL NOT NULL,
+          source TEXT NOT NULL,
+          description TEXT,
+          created_at TEXT NOT NULL
+        )
+      ''');
+    }
   }
 }

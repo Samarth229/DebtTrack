@@ -23,7 +23,8 @@ class TransactionService {
       throw Exception("Person list cannot be empty");
     }
 
-    if (type != 'loan' && type != 'split') {
+    if (type != 'loan' && type != 'split' &&
+        type != 'loan_giving' && type != 'loan_taking') {
       throw Exception("Invalid transaction type");
     }
 
@@ -67,7 +68,8 @@ class TransactionService {
       throw Exception("At least one person must be assigned");
     }
 
-    if (type != 'loan' && type != 'split') {
+    if (type != 'loan' && type != 'split' &&
+        type != 'loan_giving' && type != 'loan_taking') {
       throw Exception("Invalid transaction type");
     }
 
@@ -104,6 +106,63 @@ class TransactionService {
 
       await _transactionRepository.createTransaction(transaction);
     }
+  }
+
+  /// Applies [amount] to a person's pending transactions in order:
+  /// 1. Split transactions (oldest first)
+  /// 2. Loan-giving transactions (oldest first)
+  /// If excess remains after clearing all, creates a loan_taking transaction.
+  Future<void> applyRepayment({
+    required int personId,
+    required double amount,
+  }) async {
+    double remaining = amount;
+
+    // ── Phase 1: clear split transactions ────────────────────────────────────
+    final splitTxns = await _transactionRepository.getPendingByPersonAndTypes(
+        personId, ['split']);
+    for (final txn in splitTxns) {
+      if (remaining <= 0) break;
+      if (remaining >= txn.remainingAmount) {
+        remaining -= txn.remainingAmount;
+        await _transactionRepository.updateTransactionRemaining(
+            txn.id!, 0, 'completed');
+      } else {
+        await _transactionRepository.updateTransactionRemaining(
+            txn.id!, txn.remainingAmount - remaining, 'pending');
+        remaining = 0;
+      }
+    }
+    if (remaining <= 0) return;
+
+    // ── Phase 2: clear loan-giving transactions ───────────────────────────────
+    final loanTxns = await _transactionRepository.getPendingByPersonAndTypes(
+        personId, ['loan_giving', 'loan']);
+    for (final txn in loanTxns) {
+      if (remaining <= 0) break;
+      if (remaining >= txn.remainingAmount) {
+        remaining -= txn.remainingAmount;
+        await _transactionRepository.updateTransactionRemaining(
+            txn.id!, 0, 'completed');
+      } else {
+        await _transactionRepository.updateTransactionRemaining(
+            txn.id!, txn.remainingAmount - remaining, 'pending');
+        remaining = 0;
+      }
+    }
+    if (remaining <= 0) return;
+
+    // ── Phase 3: excess → loan_taking ─────────────────────────────────────────
+    await _transactionRepository.createTransaction(
+      TransactionModel(
+        personId: personId,
+        totalAmount: remaining,
+        remainingAmount: remaining,
+        type: 'loan_taking',
+        status: 'pending',
+        createdAt: DateTime.now(),
+      ),
+    );
   }
 
   Future<void> recordPayment({

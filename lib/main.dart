@@ -1,29 +1,84 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:flutter/foundation.dart'; 
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'ui/screens/dashboard_screen.dart';
+import 'ui/screens/app_shell.dart';
+import 'ui/screens/permission_screen.dart';
+import 'ui/screens/splash_screen.dart';
+import 'ui/theme/app_theme.dart';
 
 void main() {
-  if (!kIsWeb) {
+  if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
   }
-
   runApp(const MyFinanceApp());
 }
+
 class MyFinanceApp extends StatelessWidget {
   const MyFinanceApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'MyFinance',
+      title: 'DebtTrack',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-      ),
-      home: const DashboardScreen(),
+      theme: AppTheme.theme,
+      home: const _Launcher(),
     );
+  }
+}
+
+class _Launcher extends StatefulWidget {
+  const _Launcher();
+
+  @override
+  State<_Launcher> createState() => _LauncherState();
+}
+
+class _LauncherState extends State<_Launcher> {
+  bool _splashDone = false;
+  bool _ready = false;
+  bool _permissionsDone = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    final prefs = await SharedPreferences.getInstance();
+    final done = prefs.getBool('permissions_done') ?? false;
+    setState(() {
+      _permissionsDone = done;
+      _ready = true;
+    });
+  }
+
+  Future<void> _onPermissionsDone() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('permissions_done', true);
+    if (mounted) {
+      setState(() => _permissionsDone = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_splashDone) {
+      return SplashScreen(onDone: () => setState(() => _splashDone = true));
+    }
+    if (!_ready) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (!_permissionsDone) {
+      return PermissionScreen(onDone: _onPermissionsDone);
+    }
+    return const AppShell();
   }
 }
