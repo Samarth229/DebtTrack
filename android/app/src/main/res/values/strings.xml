@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MyFinance</string>
+    <string name="accessibility_service_description">MyFinance uses this permission to detect when GPay closes so it can automatically prompt you to record your payment. No personal data is read or stored.</string>
+</resources>

@@ -110,6 +110,46 @@ class AnalyticsService {
     }).toList();
   }
 
+  /// Top 3 people by total split amount
+  Future<List<TopEntry>> getTopSplits() async {
+    final db = await _databaseHelper.database;
+    final result = await db.rawQuery('''
+      SELECT p.name, SUM(t.total_amount) as total
+      FROM persons p
+      JOIN transactions t ON p.id = t.person_id
+      WHERE t.type = 'split'
+      GROUP BY p.id
+      ORDER BY total DESC
+      LIMIT 3
+    ''');
+    return result
+        .map((r) => TopEntry(
+              name: r['name'] as String,
+              amount: (r['total'] as num).toDouble(),
+            ))
+        .toList();
+  }
+
+  /// Top 3 people by total loan-given amount
+  Future<List<TopEntry>> getTopLents() async {
+    final db = await _databaseHelper.database;
+    final result = await db.rawQuery('''
+      SELECT p.name, SUM(t.total_amount) as total
+      FROM persons p
+      JOIN transactions t ON p.id = t.person_id
+      WHERE t.type IN ('loan_giving', 'loan')
+      GROUP BY p.id
+      ORDER BY total DESC
+      LIMIT 3
+    ''');
+    return result
+        .map((r) => TopEntry(
+              name: r['name'] as String,
+              amount: (r['total'] as num).toDouble(),
+            ))
+        .toList();
+  }
+
   Future<Map<String, double>> getMonthlyTotals() async {
     final db = await _databaseHelper.database;
 
@@ -134,4 +174,10 @@ class AnalyticsService {
 
     return monthlyData;
   }
+}
+
+class TopEntry {
+  final String name;
+  final double amount;
+  const TopEntry({required this.name, required this.amount});
 }
