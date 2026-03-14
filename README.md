@@ -13,6 +13,7 @@ DebtTrack is an Android app that helps you manage your money with friends — tr
 - **Loans** — Record money you lent or borrowed with full repayment tracking
 - **Repayments** — Mark partial or full repayments against any transaction
 - **GPay Integration** — A smart popup appears every time you close GPay, letting you instantly record a payment (Self / Split / Loan / Repay)
+- **QR Payment Scanner** — Scan any UPI QR code and pay instantly via GPay, PhonePe, or Paytm — app auto-detects which payment apps are installed on your device
 - **Dashboard Analytics** — View total created, paid, remaining, completion rate, debt ratio, top splits, top lents, and monthly trends
 - **Person Reports** — See a breakdown of every person you've transacted with
 - **Profile** — Set your name, phone, UPI ID, and profile photo
@@ -32,11 +33,11 @@ DebtTrack is an Android app that helps you manage your money with friends — tr
 
 ## Download
 
-### ⬇️ [Download DebtTrack.apk](https://github.com/Samarth229/DebtTrack/releases/download/v1.0.0/DebtTrack.apk)
+### ⬇️ [Download DebtTrack.apk](https://github.com/Samarth229/DebtTrack/releases/download/v1.0.1/app-release.apk)
 
 ### Steps to install:
 
-1. Click the download link above to download `DebtTrack.apk`
+1. Click the download link above to download `app-release.apk`
 2. Open the downloaded file on your Android phone
 3. If prompted, go to **Settings → Install unknown apps** and allow installation from your browser or file manager
 4. Tap **Install**
@@ -65,7 +66,7 @@ DebtTrack is built with a **100% offline, local-first** architecture. Here is ex
 ### What permissions does the app use?
 | Permission | Why |
 |------------|-----|
-| Camera | Scan bills and QR codes |
+| Camera | Scan bills and UPI QR codes |
 | Accessibility Service | Detect when GPay is closed to show payment prompt |
 | Notifications | Optional payment reminders |
 
@@ -80,6 +81,7 @@ DebtTrack is built with a **100% offline, local-first** architecture. Here is ex
 - **Shared Preferences** — local key-value storage
 - **Google ML Kit** — on-device Bill OCR (no data sent to Google)
 - **Mobile Scanner** — QR Code scanning
+- **URL Launcher** — Opens GPay, PhonePe, and Paytm for UPI payments
 - **Android Accessibility Service** — GPay close detection
 
 ---
