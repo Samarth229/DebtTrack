@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/analytics/analytics_service.dart';
@@ -7,9 +6,6 @@ import '../../core/services/dashboard_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/summary_card.dart';
 import '../widgets/empty_state.dart';
-import '../widgets/payment_flow_popup.dart';
-import 'add_transaction_screen.dart';
-import 'repay_screen.dart';
 
 const _channel = MethodChannel('com.example.myfinance/gpay');
 
@@ -79,25 +75,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Future<void> _onRecordPayment() async {
-    final result = await showPaymentFlowPopup(context);
-    if (!mounted) return;
-    if (result == true) {
-      _load();
-    } else if (result == 'split' || result == 'loan') {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => AddTransactionScreen(preselectedType: result as String),
-        ),
-      );
-      if (mounted) _load();
-    } else if (result == 'repay') {
-      await Navigator.push(
-          context, MaterialPageRoute(builder: (_) => const RepayScreen()));
-      if (mounted) _load();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,14 +82,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: const Text('MyFinance'),
         actions: [
-          if (Platform.isIOS) ...[
-            _PayButton(
-              label: 'Record',
-              color: const Color(0xFF00897B),
-              onTap: _onRecordPayment,
-            ),
-            const SizedBox(width: 4),
-          ],
           _PayButton(
             label: 'GPay',
             color: const Color(0xFF1A73E8),

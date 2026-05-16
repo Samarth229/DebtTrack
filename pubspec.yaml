@@ -14,7 +14,6 @@ dependencies:
   sqflite: ^2.3.0
   sqflite_common_ffi: ^2.3.2
   path: ^1.8.3
-  cupertino_icons: ^1.0.8
 
   # Bill OCR
   google_mlkit_text_recognition: ^0.13.0

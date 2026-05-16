@@ -1,10 +1,8 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/models/personal_expense.dart';
 import '../../core/repositories/personal_expense_repository.dart';
-import '../widgets/payment_flow_popup.dart';
 import 'dashboard_screen.dart';
 import 'people_screen.dart';
 import 'transactions_screen.dart';
@@ -100,40 +98,8 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
   }
 
   Future<void> _checkPending() async {
-    if (Platform.isIOS) {
-      await _handleIosWidgetAction();
-    } else {
-      await _commitPendingPersonalExpenses();
-      await _handlePendingAction();
-    }
-  }
-
-  Future<void> _handleIosWidgetAction() async {
-    try {
-      final action =
-          await _gpayChannel.invokeMethod<String?>('getPendingWidgetAction');
-      if (action == 'payment' && mounted) {
-        final result = await showPaymentFlowPopup(context);
-        if (!mounted) return;
-        if (result == true) {
-          setState(() => _refreshKey++);
-        } else if (result == 'split' || result == 'loan') {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => AddTransactionScreen(
-                preselectedType: result as String,
-              ),
-            ),
-          );
-          if (mounted) setState(() => _refreshKey++);
-        } else if (result == 'repay') {
-          await Navigator.push(
-              context, MaterialPageRoute(builder: (_) => const RepayScreen()));
-          if (mounted) setState(() => _refreshKey++);
-        }
-      }
-    } catch (_) {}
+    await _commitPendingPersonalExpenses();
+    await _handlePendingAction();
   }
 
   Future<void> _commitPendingPersonalExpenses() async {

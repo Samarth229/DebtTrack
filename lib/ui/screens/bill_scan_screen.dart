@@ -69,7 +69,7 @@ class BillParser {
     for (final block in recognized.blocks) {
       for (final line in block.lines) {
         final box = line.boundingBox;
-        if (box == null || line.text.trim().isEmpty) continue;
+        if (line.text.trim().isEmpty) continue;
         billLines.add(_BillLine(
           text: line.text.trim(),
           top: box.top,

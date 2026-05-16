@@ -159,7 +159,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
                       child: ListView.separated(
                         padding: const EdgeInsets.all(16),
                         itemCount: _filtered.length,
-                        separatorBuilder: (_, __) =>
+                        separatorBuilder: (_, _) =>
                             const SizedBox(height: 10),
                         itemBuilder: (_, i) {
                           final report = _filtered[i];
@@ -184,12 +184,12 @@ class _PeopleScreenState extends State<PeopleScreen> {
                               report: report,
                               onDelete: () => _confirmDelete(report),
                               onTap: () async {
+                                final navigator = Navigator.of(context);
                                 final person = await _personRepo
                                     .getPersonById(report.personId);
                                 if (!mounted) return;
                                 if (person != null) {
-                                  await Navigator.push(
-                                    context,
+                                  await navigator.push(
                                     MaterialPageRoute(
                                       builder: (_) => PersonDetailScreen(
                                           person: person),

@@ -290,8 +290,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
               const SizedBox(height: 10),
-              if (!Platform.isIOS)
-                _permTile(
+              _permTile(
                   ctx: ctx, setS: setS,
                   icon: Icons.accessibility_new, title: 'Background Detection',
                   subtitle: 'Detect GPay even when app is closed',
@@ -539,7 +538,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 title: const Text('Permissions', style: TextStyle(fontWeight: FontWeight.w600)),
                 subtitle: Text(
-                  Platform.isIOS ? 'Camera, Notifications' : 'Camera, Notifications, Accessibility',
+                  'Camera, Notifications, Accessibility',
                   style: const TextStyle(fontSize: 12),
                 ),
                 trailing: const Icon(Icons.chevron_right),
